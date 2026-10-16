@@ -60,4 +60,71 @@
     });
   }));
 })();
-      
+// =========================================
+// 3D SCROLL TRIGGER + PARALLAX
+// =========================================
+
+(function () {
+  // 1. 3D Reveal with Intersection Observer
+  const revealElements = document.querySelectorAll('.reveal');
+
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    },
+    {
+      threshold: 0.15,
+      rootMargin: '0px 0px -60px 0px'
+    }
+  );
+
+  revealElements.forEach((el) => revealObserver.observe(el));
+
+  // 2. Soft 3D Parallax on sky
+  const sun     = document.querySelector('.sky .sun');
+  const sunRays = document.querySelector('.sky .sun-rays');
+  const haloOne = document.querySelector('.sky .halo-one');
+  const haloTwo = document.querySelector('.sky .halo-two');
+  const clouds  = document.querySelectorAll('.sky .cloud');
+
+  let ticking = false;
+
+  function updateParallax() {
+    const scrollY = window.scrollY;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = Math.min(scrollY / maxScroll, 1);
+
+    if (sun) {
+      sun.style.transform = `translateY(\( {scrollY * 0.22}px) translateZ( \){scrollY * 0.05}px)`;
+    }
+    if (sunRays) {
+      sunRays.style.transform = `translate(-50%, -50%) translateY(\( {scrollY * 0.14}px) rotate( \){progress * 8}deg)`;
+    }
+    if (haloOne) {
+      haloOne.style.transform = `translate(-50%, -50%) translateY(${scrollY * 0.09}px)`;
+    }
+    if (haloTwo) {
+      haloTwo.style.transform = `translate(-50%, -50%) translateY(${scrollY * 0.05}px)`;
+    }
+
+    clouds.forEach((cloud, i) => {
+      const speed = 0.07 + i * 0.035;
+      cloud.style.transform = `translateY(${scrollY * speed}px)`;
+    });
+
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(updateParallax);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  updateParallax();
+})();      
